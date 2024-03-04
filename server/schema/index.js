@@ -6,4 +6,9 @@ const userSignUpSchema = zod.object({
   email: zod.email(),
 });
 
-module.exports = userSignUpSchema;
+const userSignInSchema = zod.object({
+  username : zod.string(),
+  password : zod.string()
+})
+
+module.exports = { userSignUpSchema, userSignInSchema };
