@@ -12,7 +12,6 @@ const JWT_SECRET = process.env.JWT_SECRET;
 
 router.post("/signup", async (req, res) => {
     const { username, password, email } = req.body;
-
     try {
 
         const result = userSignUpSchema.safeParse(req.body);
@@ -63,9 +62,8 @@ router.post("/signup", async (req, res) => {
 });
 
 
-router.get("/signin", (req, res) => {
-    const { username, password } = req.body;
-
+router.post("/signin", async (req, res) => {
+    const { username, email, password } = req.body;
     try {
         
         const result = userSignUpSchema.safeParse(req.body);
@@ -74,6 +72,37 @@ router.get("/signin", (req, res) => {
                 message : "Invalid Form Details"
             })
         }
+
+        const isExistingUser = await prisma.user.findFirst({
+            where : {
+                username : username,
+                email : email
+            }
+        });
+
+        if(isExistingUser === null){
+            return res.status(403).json({
+                message : "User does not Exist"
+            })
+        }
+
+        const isPasswordValid = await bcrypt.compare(password, isExistingUser.password);
+
+        if(isPasswordValid !== true){
+            return res.status(403).json({
+                message : "Invaild Password"
+            })
+        }
+        
+        const token = jwt.sign({
+            username : username,
+            email : email
+        }, JWT_SECRET);
+
+        return res.status(200).json({
+            message : "Successfully Signed In",
+            token : token
+        })
 
     } catch (error) {
         res.status(500).json({
