@@ -3,7 +3,7 @@ const zod = require("zod");
 const userSignUpSchema = zod.object({
   username: zod.string(),
   password: zod.string(),
-  email: zod.email(),
+  email: zod.string().email(),
 });
 
 const userSignInSchema = zod.object({
